@@ -1,0 +1,12 @@
+<RCC>
+  <qresource>
+    <file>icons/clear-100.png</file>
+    <file>icons/copy-100.png</file>
+    <file>icons/cut-100.png</file>
+    <file>icons/paste-100.png</file>
+    <file>icons/save-100.png</file>
+    <file>icons/save-as-100.png</file>
+    <file>icons/back-50.png</file>
+    <file>icons/forward-50.png</file>
+  </qresource>
+</RCC>
