@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'MyPad.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.6.1
+## Created by: Qt User Interface Compiler version 6.6.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -17,8 +17,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QMainWindow,
     QMenuBar, QPushButton, QSizePolicy, QSlider,
-    QSpacerItem, QStatusBar, QTextEdit, QVBoxLayout,
-    QWidget)
+    QSpacerItem, QStatusBar, QVBoxLayout, QWidget)
 import resource_rc
 
 class Ui_MainWindow(object):
@@ -38,9 +37,10 @@ class Ui_MainWindow(object):
         self.MainFrame.setFrameShadow(QFrame.Raised)
         self.verticalLayout_2 = QVBoxLayout(self.MainFrame)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+        self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
         self.ButtonFrame = QFrame(self.MainFrame)
         self.ButtonFrame.setObjectName(u"ButtonFrame")
-        sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.ButtonFrame.sizePolicy().hasHeightForWidth())
@@ -55,7 +55,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
         self.SaveBtn = QPushButton(self.ButtonFrame)
         self.SaveBtn.setObjectName(u"SaveBtn")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.SaveBtn.sizePolicy().hasHeightForWidth())
@@ -149,36 +149,21 @@ class Ui_MainWindow(object):
         self.horizontalLayout = QHBoxLayout(self.ContentFrame)
         self.horizontalLayout.setSpacing(5)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.numVBox = QVBoxLayout()
-        self.numVBox.setObjectName(u"numVBox")
-
-        self.horizontalLayout.addLayout(self.numVBox)
-
-        self.textEdit = QTextEdit(self.ContentFrame)
-        self.textEdit.setObjectName(u"textEdit")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        sizePolicy2.setHorizontalStretch(0)
-        sizePolicy2.setVerticalStretch(0)
-        sizePolicy2.setHeightForWidth(self.textEdit.sizePolicy().hasHeightForWidth())
-        self.textEdit.setSizePolicy(sizePolicy2)
-
-        self.horizontalLayout.addWidget(self.textEdit)
-
 
         self.verticalLayout_2.addWidget(self.ContentFrame)
 
         self.HBoxFrame = QFrame(self.MainFrame)
         self.HBoxFrame.setObjectName(u"HBoxFrame")
-        sizePolicy3 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
-        sizePolicy3.setHorizontalStretch(0)
-        sizePolicy3.setVerticalStretch(0)
-        sizePolicy3.setHeightForWidth(self.HBoxFrame.sizePolicy().hasHeightForWidth())
-        self.HBoxFrame.setSizePolicy(sizePolicy3)
+        sizePolicy2 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
+        sizePolicy2.setHorizontalStretch(0)
+        sizePolicy2.setVerticalStretch(0)
+        sizePolicy2.setHeightForWidth(self.HBoxFrame.sizePolicy().hasHeightForWidth())
+        self.HBoxFrame.setSizePolicy(sizePolicy2)
         self.HBoxFrame.setFrameShape(QFrame.StyledPanel)
         self.HBoxFrame.setFrameShadow(QFrame.Raised)
         self.horizontalLayout_3 = QHBoxLayout(self.HBoxFrame)
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
-        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_3.addItem(self.horizontalSpacer)
 

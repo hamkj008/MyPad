@@ -1,72 +1,45 @@
 from icecream import ic
-
-from PySide6.QtWidgets import QMainWindow, QFileDialog, QStatusBar, QVBoxLayout, QPushButton, QLabel, QTextEdit
-from UiViews.UiMainWindow import Ui_MainWindow
-from PySide6.QtCore import Qt
 from functools import partial
+import os
 
+from PySide6.QtWidgets import QMainWindow, QFileDialog, QStatusBar
+from PySide6.QtGui import QIcon
+from PySide6.QtCore import QFileInfo
+
+from UiViews.UiMainWindow import Ui_MainWindow
+from QSSController import QSSController
+from LineNumberTextEdit import LineNumberTextEdit
+from MyHelperLibrary.Helpers.HelperMethods import createChoiceDialog
 
 
 class View(QMainWindow):
 
-    
     def __init__(self, controller, filename):
         super().__init__()
-        self.controller = controller
+
+        self.controller     = controller
+        self.qssController  = QSSController()
 
         self.window = Ui_MainWindow()
         self.window.setupUi(self)
-        self.setWindowTitle("My Pad")
-        
-        self.setFixedSize(1000, 1000)
+        self.appName = "MyPad"
+        self.setWindowIcon(QIcon("icons/MyPadIcon.png"))
         
         # -- Style Sheet --
-        self.setStyleSheet("""#centralwidget {
-                               background-color: #686b6d;
-                               }
-                               #ButtonFrame, #ContentFrame{ 
-                                    background-color: #343335;
-                                    border: 3px solid black;
-                               }
-
-                                #numLine, #firstLabel {
-                                    color: #b620fc;
-                                }
-
-                                #textEdit{
-                                    background-color: black;
-                                    color: #26ea10;                                    
-                                }
-                           
-                                #SaveBtn, #SaveAsBtn, #CutBtn, #CopyBtn, #PasteBtn, #ClearBtn {
-                                    background-color: #4470f4;
-                                    font: 14pt "Ariel";
-                                    font-weight: 600;
-	                                color: black;
-                                    border: 3px solid black;	
-                                    padding: 15px;
-                                }""")
+        self.setStyleSheet(self.qssController.getStyle())
         
 
         # -- Text Edit -- 
-        self.textEdit = self.window.textEdit
-        self.fontSize = 20
-        self.window.horizontalSlider.setValue(self.fontSize)
-        self.window.horizontalSlider.sliderMoved.connect(self.adjustFont)
-        self.adjustFont(self.fontSize)
-        
-        font = self.textEdit.font()
-        font.setPointSize(self.fontSize)
-        self.textEdit.setFont(font)
+        self.lineNumberTextEdit = LineNumberTextEdit()
+        self.lineNumberTextEdit.setObjectName("textEdit")
+        self.window.ContentFrame.layout().addWidget(self.lineNumberTextEdit)
 
-        
-        self.cursor = self.textEdit.textCursor()
-        self.lineNumber = self.cursor.blockNumber() + 1
-        numLine = QLabel(str(self.lineNumber))
-        numLine.setObjectName("numLine")
-        self.window.numVBox.addWidget(numLine)
-        self.adjustFont(self.fontSize)
-        
+
+        self.window.horizontalSlider.setMinimum(8)      # Minimum value
+        self.window.horizontalSlider.setMaximum(60)     # Maximum value
+        self.window.horizontalSlider.setValue(self.lineNumberTextEdit.fontSize)
+        self.window.horizontalSlider.sliderMoved.connect(self.adjustFont)
+
   
         # -- Menu bar --
         self.menubar = self.menuBar()
@@ -77,43 +50,52 @@ class View(QMainWindow):
         self.statusBar().showMessage("Characters: ")  
 
 
-        # -- Initialize UI / Buttons --
-        self.window.numVBox.setAlignment(Qt.AlignTop)
-        self.window.numVBox.setSpacing(0)
-        self.window.numVBox.setContentsMargins(0,5,0,0)
-        
-
         # -- Signals --
-        self.textEdit.textChanged.connect(self.onTextChanged)
+        self.lineNumberTextEdit.textChanged.connect(self.onTextChanged)
         self.window.SaveBtn.clicked.connect(self.saveAs)
         self.window.SaveAsBtn.clicked.connect(self.saveAs)
-        self.window.CutBtn.clicked.connect(self.textEdit.cut)
-        self.window.CopyBtn.clicked.connect(self.textEdit.copy)
-        self.window.PasteBtn.clicked.connect(self.textEdit.paste)
-        self.window.ClearBtn.clicked.connect(self.textEdit.clear)
+        self.window.CutBtn.clicked.connect(self.lineNumberTextEdit.cut)
+        self.window.CopyBtn.clicked.connect(self.lineNumberTextEdit.copy)
+        self.window.PasteBtn.clicked.connect(self.lineNumberTextEdit.paste)
+        self.window.ClearBtn.clicked.connect(self.onClear)
         
         self.window.leftBtn.clicked.connect(partial(self.changeFontSize, False))
         self.window.rightBtn.clicked.connect(partial(self.changeFontSize, True))
         
+        self.currentFile = None
+        self.fileSaved = True
+        self.setWindowTitle(self.appName)   # Default window name without file name attached
+
         if filename:
             self.loadFile(filename)    
 
+        self.previous_text = self.lineNumberTextEdit.toPlainText()
 
-    # -------------------------------------------------------------------------
+
+    # =============================================================================================
 
 
     def main(self):
         self.show()
 
         
-    # -------------------------------------------------------------------------
+    # =============================================================================================
 
 
     def quitApp(self):
+
+        if not self.fileSaved:
+            if createChoiceDialog("File not saved", """The curent file has not been saved. 
+                                    \nWould you like to save it?"""):
+                if self.currentFile:
+                    self.saveAs()
+                else:
+                    self.save()
+
         self.controller.quitApp()
 
 
-    # -------------------------------------------------------------------------
+    # =============================================================================================
         
 
     def setupMenus(self):
@@ -122,16 +104,20 @@ class View(QMainWindow):
         fileMenu = self.menubar.addMenu("&File")
 
         # -- Actions --
-        newAction = fileMenu.addAction("New")
+        newAction           = fileMenu.addAction("New")
+        newWindowAction     = fileMenu.addAction("New Window")
+        fileMenu.addSeparator()
+        openAction          = fileMenu.addAction("Open")
+        fileMenu.addSeparator()
+        saveAction          = fileMenu.addAction("Save")            # TO DO
+        saveAsAction        = fileMenu.addAction("Save As")
+        fileMenu.addSeparator()
+        quitAction          = fileMenu.addAction("Exit")
+        
         newAction.triggered.connect(self.newFile)
-        newWindowAction = fileMenu.addAction("New Window")
         newWindowAction.triggered.connect(self.newFileWindow)
-        openAction = fileMenu.addAction("Open")
         openAction.triggered.connect(self.openFile)
-        saveAction = fileMenu.addAction("Save")
-        saveAsAction = fileMenu.addAction("Save As")
         saveAsAction.triggered.connect(self.saveAs)
-        quitAction = fileMenu.addAction("Exit")
         quitAction.triggered.connect(self.quitApp)
 
 
@@ -139,113 +125,166 @@ class View(QMainWindow):
         editMenu = self.menubar.addMenu("&Edit")
 
         # -- Actions --
-        undoAction = editMenu.addAction("Undo")
-        undoAction.triggered.connect(self.textEdit.undo)
-        redoAction = editMenu.addAction("Redo")
-        redoAction.triggered.connect(self.textEdit.redo)
-        cutAction = editMenu.addAction("Cut")
-        cutAction.triggered.connect(self.textEdit.cut)
-        copyAction = editMenu.addAction("Copy")
-        copyAction.triggered.connect(self.textEdit.copy)
+        undoAction  = editMenu.addAction("Undo")
+        redoAction  = editMenu.addAction("Redo")
+        editMenu.addSeparator()
+        cutAction   = editMenu.addAction("Cut")
+        copyAction  = editMenu.addAction("Copy")
         pasteAction = editMenu.addAction("Paste")
-        pasteAction.triggered.connect(self.textEdit.paste)
-
-
-    # -------------------------------------------------------------------------
         
+        undoAction.triggered.connect(self.lineNumberTextEdit.undo)
+        redoAction.triggered.connect(self.lineNumberTextEdit.redo)
+        cutAction.triggered.connect(self.lineNumberTextEdit.cut)
+        copyAction.triggered.connect(self.lineNumberTextEdit.copy)
+        pasteAction.triggered.connect(self.lineNumberTextEdit.paste)
+
+
+    # =============================================================================================
+
 
     def onTextChanged(self):
+        ic("text changed")
+
+        # Prevent painting from triggering on text change every frame
+        current_text = self.lineNumberTextEdit.toPlainText()
+        if current_text != self.previous_text:
+            self.previous_text = current_text
+            self.fileSaved = False
+
+            if self.currentFile:
+                self.setWindowTitle(f"{self.appName} - {self.currentFile}*")
+
+            else:
+                self.setWindowTitle(f"{self.appName} - *")
 
         # Status bar display
-        self.statusBar().showMessage("Characters: " + str(len(self.textEdit.toPlainText())))
+        self.statusBar().showMessage("Characters: " + str(len(self.lineNumberTextEdit.toPlainText())) + "    Lines: " + str(self.lineNumberTextEdit.document().blockCount()))      
 
 
-        # -----  ADD LINE NUMBERS -----
+    # =============================================================================================
 
-        # A new numLine label replaces the default "firstLabel" that is a placeholder in the numVBox.
-        # Without the placeholder the column has no content and the first line number should be displayed initially 
-        # instead of appearing once content is entered
-        lines = self.textEdit.toPlainText().split('\n')
+
+    def onClear(self):
+        ic("clear")
+
+        if self.currentFile:
+            if not createChoiceDialog("Clear current file", "There is a file loaded. Are you sure you want to clear it?"):
+                return
+            else:
+                self.currentFile = None
+            
+        self.setWindowTitle(self.appName)
+        self.previous_text = ""
+        self.lineNumberTextEdit.clear()
+        self.lineNumberTextEdit.lineCount = 1
+
+
+    # =============================================================================================
+
+
+    def save(self):
         
-        if len(lines) > self.lineNumber:
-            while len(lines) > self.lineNumber:
-                self.lineNumber += 1
-                numLine = QLabel(str(self.lineNumber))
-                numLine.setObjectName("numLine")
-                self.window.numVBox.addWidget(numLine)
-                self.adjustFont(self.fontSize)
-            
+        if self.currentFile:
+            try:
+                with open(self.currentFilePath, "w") as file:
+                    file.write(self.lineNumberTextEdit.toPlainText())
 
-        # If the lines decrease, delete the line number
-        elif len(lines) < self.lineNumber:
-            self.lineNumber -= 1
-            widget = self.window.numVBox.itemAt(self.lineNumber).widget()
+                self.setWindowTitle(f"{self.appName} - {self.currentFile}")
+                self.fileSaved = True
+                ic(f"File saved: {self.currentFile}")
+                
+            except IOError as e:
+                ic("Error saving file")
+                
+        else:
+            # If no file is open yet, trigger Save As
+            self.saveAs()
 
-            if widget:
-                widget.deleteLater()           
 
-
-    # -------------------------------------------------------------------------
-            
+    # =============================================================================================
 
     def saveAs(self):
-        file_path, _ = QFileDialog.getSaveFileName(self, "Save File", "", "Text Files (*.txt);;All Files (*)")
-        if file_path:
-            with open(file_path, "w") as file:
-                file.write(self.textEdit.toPlainText())
-                
 
-    # -------------------------------------------------------------------------
-    
-    
-    def openFile(self):
-        file_path, _ = QFileDialog.getOpenFileName(self, "Save File", "", "Text Files (*.txt);;All Files (*)")
-        if file_path:
-            with open(file_path, "r") as file:
-                self.textEdit.setText(file.read())
-       
+        self.currentFilePath, _ = QFileDialog.getSaveFileName(self, "Save File", "", "Text Files (*.txt);;All Files (*)")
+
+        if self.currentFilePath:
+            try:
+                with open(self.currentFilePath, "w") as file:
+                    file.write(self.lineNumberTextEdit.toPlainText())
+
+                self.currentFile = QFileInfo(self.currentFilePath).fileName()
+                self.setWindowTitle(f"{self.appName} - {self.currentFile}")
+                self.fileSaved = True
+                ic(f"File saved as: {self.currentFilePath}")
                 
-    # -------------------------------------------------------------------------
+            except IOError as e:
+                ic("Error saving file")
+
+
+    # =============================================================================================
+    
+
+    def openFile(self):
+
+        self.currentFilePath, _ = QFileDialog.getOpenFileName(self, "Save File", "", "Text Files (*.txt);;All Files (*)")
+
+        if self.currentFilePath:
+            try:
+                with open(self.currentFilePath, "r") as file:
+                    self.lineNumberTextEdit.clear()
+                    self.lineNumberTextEdit.setText(file.read())
+                    self.currentFile = QFileInfo(self.currentFilePath).fileName()
+                    self.setWindowTitle(f"{self.appName} - {self.currentFile}") 
+
+            except IOError as e:
+                ic("Error opening file")
+                
+    # =============================================================================================
 
 
     def loadFile(self, filename):
-        with open(filename, "r") as file:
-            self.textEdit.setText(file.read())
-            
 
-    # -------------------------------------------------------------------------
+        self.currentFilePath = filename
+
+        try:
+            with open(filename, "r") as file:
+                self.lineNumberTextEdit.setText(file.read())
+                self.currentFile = QFileInfo(self.currentFilePath).fileName()
+                self.setWindowTitle(f"{self.appName} - {self.currentFile}") 
+           
+        except IOError as e:
+                ic("Error loading file")
+
+
+    # =============================================================================================
     
+
     def changeFontSize(self, bigger):
         
+        size = self.lineNumberTextEdit.fontSize
+
         if bigger:
-            self.fontSize += 5
+            size += 5
+            self.adjustFont(size)
  
         else:
-            self.fontSize -= 5  
-                
-        self.adjustFont(self.fontSize) 
+            size -= 5
+            self.adjustFont(size) 
         
 
-    # -------------------------------------------------------------------------
+    # =============================================================================================
     
     
     def adjustFont(self, fontSize):
-        
-        font = self.textEdit.font()
-        font.setPointSize(fontSize)
-        self.textEdit.setFont(font)
-        
-        
-        numLines = self.window.ContentFrame.findChildren(QLabel)
-        
-        for line in numLines:
-            line.setFont(font)
-        
-        self.window.horizontalSlider.setValue(fontSize)
-        self.fontSize = fontSize
+        ic(fontSize)
+
+        if fontSize > 8 and fontSize < 60:
+            self.lineNumberTextEdit.fontSize = fontSize
+
+            self.window.horizontalSlider.setValue(self.lineNumberTextEdit.fontSize)
         
 
-    # -------------------------------------------------------------------------
+    # =============================================================================================
     
 
     def newFile(self):
@@ -256,4 +295,6 @@ class View(QMainWindow):
         self.close()
         self.controller.main()
 
-        
+
+    # =============================================================================================
+    

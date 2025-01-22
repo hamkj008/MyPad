@@ -4,14 +4,15 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>ad131296-a3a2-4154-95d7-7033bccabe06</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>Controller.py</StartupFile>
+    <StartupFile>Main.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>MyPad</Name>
     <RootNamespace>MyPad</RootNamespace>
-    <InterpreterId>Global|PythonCore|3.10</InterpreterId>
+    <InterpreterId>
+    </InterpreterId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,11 +23,13 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Controller.py" />
+    <Compile Include="LineNumberTextEdit.py" />
+    <Compile Include="Main.py" />
+    <Compile Include="QSSController.py" />
     <Compile Include="View.py" />
   </ItemGroup>
   <ItemGroup>
-    <InterpreterReference Include="Global|PythonCore|3.10" />
+    <InterpreterReference Include="Global|VisualStudio|GUI Applications" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
