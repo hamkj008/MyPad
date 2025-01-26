@@ -1,15 +1,17 @@
 from icecream import ic
 from functools import partial
-import os
 
 from PySide6.QtWidgets import QMainWindow, QFileDialog, QStatusBar
 from PySide6.QtGui import QIcon
-from PySide6.QtCore import QFileInfo
+from PySide6.QtCore import QFileInfo, Qt
 
+from CustomWindow import CustomWindow
 from UiViews.UiMainWindow import Ui_MainWindow
 from QSSController import QSSController
+from QSSController import ColorTheme
 from LineNumberTextEdit import LineNumberTextEdit
 from MyHelperLibrary.Helpers.HelperMethods import createChoiceDialog
+
 
 
 class View(QMainWindow):
@@ -18,10 +20,11 @@ class View(QMainWindow):
         super().__init__()
 
         self.controller     = controller
-        self.qssController  = QSSController()
+        self.qssController  = QSSController(ColorTheme.DARK)
 
-        self.window = Ui_MainWindow()
-        self.window.setupUi(self)
+        self.window = CustomWindow("MyPad", "icons/MyPadIcon.png")
+        self.myPadWindow = Ui_MainWindow()
+        self.myPadWindow.setupUi(self)
         self.appName = "MyPad"
         self.setWindowIcon(QIcon("icons/MyPadIcon.png"))
         
@@ -143,7 +146,6 @@ class View(QMainWindow):
 
 
     def onTextChanged(self):
-        ic("text changed")
 
         # Prevent painting from triggering on text change every frame
         current_text = self.lineNumberTextEdit.toPlainText()
