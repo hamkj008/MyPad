@@ -1,9 +1,10 @@
 from icecream import ic
 
-from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QSizePolicy
+from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QSizePolicy, QMenuBar
 from PySide6.QtCore import Qt, QPoint, QTimer, QEvent
 from PySide6.QtGui import QIcon, QCursor
 from MyHelperLibrary.Helpers.HelperMethods import createLayoutFrame, createWidget
+
 
 
 class CustomWindow(QMainWindow):
@@ -11,26 +12,28 @@ class CustomWindow(QMainWindow):
     def __init__(self, windowName, windowIcon):
         super().__init__()
 
+        self.windowName = windowName
+        self.windowIcon = windowIcon
+
         self.setWindowFlags(Qt.FramelessWindowHint)
-        # self.setAttribute(Qt.WA_TranslucentBackground)
-
-        # Create the central widget and layout
-        container = QWidget(self, objectName="container")
-        container.setStyleSheet("background-color: #2e2e2e;")
         self.setMinimumSize(300, 100)
-        layout = QVBoxLayout(container)
-        self.setStyleSheet(self.getStyle())
-
 
         # Custom title bar
         self.createTitleBar(windowName, windowIcon)
 
+        self.menubar = QMenuBar(self)
+        self.menubar.setFixedHeight(25)
+        self.menubar.setGeometry(0, self.titleBar.height(), self.width(), 25)
+
+        self.containerWidget = QWidget(objectName="containerWidget")
+        containerLayout = QVBoxLayout(self.containerWidget)
+        containerLayout.setContentsMargins(0, 0, 0, 0)  # Remove any margins
+        containerLayout.setSpacing(0) 
+        containerLayout.addWidget(self.titleBar)
+        containerLayout.addWidget(self.menubar)
 
         # Set the title bar as the menu widget
-        self.setMenuWidget(self.titleBar)
-
-        # Central widget
-        self.setCentralWidget(container)
+        self.setMenuWidget(self.containerWidget)
 
         # Variables for window dragging
         self.dragging           = False
@@ -51,8 +54,8 @@ class CustomWindow(QMainWindow):
 
     def createTitleBar(self, windowName, windowIcon):
 
-        self.titleBar = QWidget(self, objectName="titleBar")
-        titleLayout = QHBoxLayout(self.titleBar)
+        self.titleBar   = QWidget(self, objectName="titleBar")
+        titleLayout     = QHBoxLayout(self.titleBar)
         titleLayout.setContentsMargins(10,0,0,0)
         self.titleBar.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 
@@ -116,7 +119,7 @@ class CustomWindow(QMainWindow):
         def handleResize(obj, event):
                 
             if event.type() == QEvent.Resize:
-                self.titleBar.setFixedWidth(self.width())   # Now we can safely get the real maximized width
+                self.titleBar.setFixedWidth(self.width())   # Can safely get the real maximized width
                 self.removeEventFilter(self)        # Remove this temporary event handler
 
             return False
@@ -157,14 +160,12 @@ class CustomWindow(QMainWindow):
             # Detect if mouse is near the edges for resizing
             for key, value in self.checkMouseOnWindowBorder(pos).items():
                 if value:
+                    # Lock in the cursor and window values before resizing
                     self.resizing           = True
                     self.resizeDirection    = key
                     self.initialPosition    = event.globalPos()
                     self.initialWidth       = self.width()
                     self.initialHeight      = self.height()
-
-                    ic(self.initialPosition.y())
-                    ic(self.height())
                     break
             
             else:
@@ -175,16 +176,12 @@ class CustomWindow(QMainWindow):
 
 
     def mouseMoveEvent(self, event):
-        ic("move")
 
         if self.resizing:
-            ic("resizing")
-
             # Resize the window based on the direction
-            self.resizeWindow(event.globalPos())
+            self.resizeWindow()
 
         elif self.dragging:
-            ic("dragging")
             # Drag the window
             self.move(event.globalPos() - self.dragPosition)
 
@@ -193,7 +190,6 @@ class CustomWindow(QMainWindow):
 
 
     def mouseReleaseEvent(self, event):
-        ic("mouse release")
 
         self.dragging = False
         self.resizing = False
@@ -259,9 +255,9 @@ class CustomWindow(QMainWindow):
 
 
     """Resize the window based on mouse movement."""
-    def resizeWindow(self, globalPos):
-        ic("resize window")
-        
+    def resizeWindow(self):
+        ic("resize")
+
         pos = QCursor.pos()
 
         difference = pos - self.initialPosition
@@ -296,21 +292,3 @@ class CustomWindow(QMainWindow):
         self.titleBar.setFixedWidth(self.width())
 
     # =============================================================================================
-
-
-    def getStyle(self):
-        #2e2e2e
-        return """
-                    #titleBar {
-                        background-color: #333333;
-                    }
-
-                    #buttonFrame {
-                        
-                    }
-
-                    #titleBarButton {
-                        background-color: black;
-                        color: black; 
-                    }
-                """

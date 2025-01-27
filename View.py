@@ -1,12 +1,11 @@
 from icecream import ic
 from functools import partial
 
-from PySide6.QtWidgets import QMainWindow, QFileDialog, QStatusBar
-from PySide6.QtGui import QIcon
-from PySide6.QtCore import QFileInfo, Qt
+from PySide6.QtWidgets import QWidget, QFileDialog, QStatusBar
+from PySide6.QtCore import QFileInfo
 
 from CustomWindow import CustomWindow
-from UiViews.UiMainWindow import Ui_MainWindow
+from UiViews.UiMainWindow2 import Ui_Content
 from QSSController import QSSController
 from QSSController import ColorTheme
 from LineNumberTextEdit import LineNumberTextEdit
@@ -14,65 +13,76 @@ from MyHelperLibrary.Helpers.HelperMethods import createChoiceDialog
 
 
 
-class View(QMainWindow):
+
+class View(CustomWindow):
 
     def __init__(self, controller, filename):
-        super().__init__()
-
+        super().__init__("MyPad", "icons/MyPadIcon.png")
+        
         self.controller     = controller
-        self.qssController  = QSSController(ColorTheme.DARK)
-
-        self.window = CustomWindow("MyPad", "icons/MyPadIcon.png")
-        self.myPadWindow = Ui_MainWindow()
-        self.myPadWindow.setupUi(self)
+        
         self.appName = "MyPad"
-        self.setWindowIcon(QIcon("icons/MyPadIcon.png"))
-        
-        # -- Style Sheet --
-        self.setStyleSheet(self.qssController.getStyle())
+        self.setMinimumSize(700, 500)
+       
+
+        # The primary widget to host the ui content 
+        self.container = QWidget()
+
+
+        # -- Style --
+        self.qssController  = QSSController(ColorTheme.DARK)
+        self.setStyleSheet(self.qssController.getWindowStyle())
+        self.container.setStyleSheet(self.qssController.getContentStyle())
+
+        # ------------
+
+
+        self.content = Ui_Content()
+        self.content.setupUi(self.container)
+
+        self.setCentralWidget(self.container)
         
 
-        # -- Text Edit -- 
+        # -- Custom Text Edit -- 
         self.lineNumberTextEdit = LineNumberTextEdit()
         self.lineNumberTextEdit.setObjectName("textEdit")
-        self.window.ContentFrame.layout().addWidget(self.lineNumberTextEdit)
+        self.content.ContentFrame.layout().addWidget(self.lineNumberTextEdit)
 
 
-        self.window.horizontalSlider.setMinimum(8)      # Minimum value
-        self.window.horizontalSlider.setMaximum(60)     # Maximum value
-        self.window.horizontalSlider.setValue(self.lineNumberTextEdit.fontSize)
-        self.window.horizontalSlider.sliderMoved.connect(self.adjustFont)
+        # -- Font change sliders --
+        self.content.horizontalSlider.setMinimum(8)      # Minimum value
+        self.content.horizontalSlider.setMaximum(60)     # Maximum value
+        self.content.horizontalSlider.setValue(self.lineNumberTextEdit.fontSize)
+        self.content.horizontalSlider.sliderMoved.connect(self.adjustFont)
 
   
         # -- Menu bar --
-        self.menubar = self.menuBar()
         self.setupMenus()
 
         # -- Statusbar --
         self.setStatusBar(QStatusBar(self))
+        self.statusBar().setSizeGripEnabled(False)
         self.statusBar().showMessage("Characters: ")  
-
 
         # -- Signals --
         self.lineNumberTextEdit.textChanged.connect(self.onTextChanged)
-        self.window.SaveBtn.clicked.connect(self.saveAs)
-        self.window.SaveAsBtn.clicked.connect(self.saveAs)
-        self.window.CutBtn.clicked.connect(self.lineNumberTextEdit.cut)
-        self.window.CopyBtn.clicked.connect(self.lineNumberTextEdit.copy)
-        self.window.PasteBtn.clicked.connect(self.lineNumberTextEdit.paste)
-        self.window.ClearBtn.clicked.connect(self.onClear)
+        self.content.SaveBtn.clicked.connect(self.saveAs)
+        self.content.SaveAsBtn.clicked.connect(self.saveAs)
+        self.content.CutBtn.clicked.connect(self.lineNumberTextEdit.cut)
+        self.content.CopyBtn.clicked.connect(self.lineNumberTextEdit.copy)
+        self.content.PasteBtn.clicked.connect(self.lineNumberTextEdit.paste)
+        self.content.ClearBtn.clicked.connect(self.onClear)
         
-        self.window.leftBtn.clicked.connect(partial(self.changeFontSize, False))
-        self.window.rightBtn.clicked.connect(partial(self.changeFontSize, True))
+        self.content.leftBtn.clicked.connect(partial(self.changeFontSize, False))
+        self.content.rightBtn.clicked.connect(partial(self.changeFontSize, True))
         
-        self.currentFile = None
-        self.fileSaved = True
-        self.setWindowTitle(self.appName)   # Default window name without file name attached
+        self.currentFile    = None
+        self.fileSaved      = True
 
         if filename:
             self.loadFile(filename)    
 
-        self.previous_text = self.lineNumberTextEdit.toPlainText()
+        self.previous_text  = self.lineNumberTextEdit.toPlainText()
 
 
     # =============================================================================================
@@ -104,7 +114,7 @@ class View(QMainWindow):
     def setupMenus(self):
 
         # ----- File Menu -----
-        fileMenu = self.menubar.addMenu("&File")
+        fileMenu    = self.menubar.addMenu("&File")
 
         # -- Actions --
         newAction           = fileMenu.addAction("New")
@@ -112,7 +122,7 @@ class View(QMainWindow):
         fileMenu.addSeparator()
         openAction          = fileMenu.addAction("Open")
         fileMenu.addSeparator()
-        saveAction          = fileMenu.addAction("Save")            # TO DO
+        saveAction          = fileMenu.addAction("Save")         
         saveAsAction        = fileMenu.addAction("Save As")
         fileMenu.addSeparator()
         quitAction          = fileMenu.addAction("Exit")
@@ -120,12 +130,13 @@ class View(QMainWindow):
         newAction.triggered.connect(self.newFile)
         newWindowAction.triggered.connect(self.newFileWindow)
         openAction.triggered.connect(self.openFile)
+        saveAction.triggered.connect(self.save)
         saveAsAction.triggered.connect(self.saveAs)
         quitAction.triggered.connect(self.quitApp)
 
 
         # ----- Edit menu ------
-        editMenu = self.menubar.addMenu("&Edit")
+        editMenu    = self.menubar.addMenu("&Edit")
 
         # -- Actions --
         undoAction  = editMenu.addAction("Undo")
@@ -154,10 +165,10 @@ class View(QMainWindow):
             self.fileSaved = False
 
             if self.currentFile:
-                self.setWindowTitle(f"{self.appName} - {self.currentFile}*")
+                self.windowName = f"{self.appName} - {self.currentFile}*"
 
             else:
-                self.setWindowTitle(f"{self.appName} - *")
+                self.windowName = f"{self.appName} - *"
 
         # Status bar display
         self.statusBar().showMessage("Characters: " + str(len(self.lineNumberTextEdit.toPlainText())) + "    Lines: " + str(self.lineNumberTextEdit.document().blockCount()))      
@@ -175,7 +186,7 @@ class View(QMainWindow):
             else:
                 self.currentFile = None
             
-        self.setWindowTitle(self.appName)
+        self.windowName = self.appName
         self.previous_text = ""
         self.lineNumberTextEdit.clear()
         self.lineNumberTextEdit.lineCount = 1
@@ -191,7 +202,7 @@ class View(QMainWindow):
                 with open(self.currentFilePath, "w") as file:
                     file.write(self.lineNumberTextEdit.toPlainText())
 
-                self.setWindowTitle(f"{self.appName} - {self.currentFile}")
+                self.windowName = f"{self.appName} - {self.currentFile}"
                 self.fileSaved = True
                 ic(f"File saved: {self.currentFile}")
                 
@@ -215,7 +226,7 @@ class View(QMainWindow):
                     file.write(self.lineNumberTextEdit.toPlainText())
 
                 self.currentFile = QFileInfo(self.currentFilePath).fileName()
-                self.setWindowTitle(f"{self.appName} - {self.currentFile}")
+                self.windowName = f"{self.appName} - {self.currentFile}"
                 self.fileSaved = True
                 ic(f"File saved as: {self.currentFilePath}")
                 
@@ -236,7 +247,7 @@ class View(QMainWindow):
                     self.lineNumberTextEdit.clear()
                     self.lineNumberTextEdit.setText(file.read())
                     self.currentFile = QFileInfo(self.currentFilePath).fileName()
-                    self.setWindowTitle(f"{self.appName} - {self.currentFile}") 
+                    self.windowName = f"{self.appName} - {self.currentFile}" 
 
             except IOError as e:
                 ic("Error opening file")
@@ -252,7 +263,7 @@ class View(QMainWindow):
             with open(filename, "r") as file:
                 self.lineNumberTextEdit.setText(file.read())
                 self.currentFile = QFileInfo(self.currentFilePath).fileName()
-                self.setWindowTitle(f"{self.appName} - {self.currentFile}") 
+                self.windowName = f"{self.appName} - {self.currentFile}" 
            
         except IOError as e:
                 ic("Error loading file")
@@ -283,7 +294,7 @@ class View(QMainWindow):
         if fontSize > 8 and fontSize < 60:
             self.lineNumberTextEdit.fontSize = fontSize
 
-            self.window.horizontalSlider.setValue(self.lineNumberTextEdit.fontSize)
+            self.content.horizontalSlider.setValue(self.lineNumberTextEdit.fontSize)
         
 
     # =============================================================================================

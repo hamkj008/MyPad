@@ -29,18 +29,56 @@ class QSSController():
         self.buttonTextColor        = None
         self.buttonHover            = None
 
+
     # =============================================================================================
 
 
-    def getStyle(self):
+    def getWindowStyle(self):
 
-        return """
-                QMainWindow {
-                    border: 5px solid #4CAF50; 
+        return """ 
+                CustomWindow {
+                    border: 2px solid rgb(0, 0, 255); 
                 }
 
-                #centralwidget {
-                    background-color: #686b6d;
+
+                /* ---- Menu bar ----  */
+                QMenuBar {
+                    border: none;  /* Remove any default borders */
+                    margin: 0px;   /* Remove any margins */
+                    padding: 0px;  /* Remove any padding */
+                }
+
+                #containerWidget {
+                    background-color: #A0A0A0;
+                    border-left: 2px solid rgb(0, 0, 255);
+                    border-right: 2px solid rgb(0, 0, 255);
+                }
+                /*  ------------------- */
+
+                #titleBar {
+                    background-color: #333333; 
+                    border: 2px solid rgb(0, 0, 255);
+                }
+
+                #titleLabel {
+                    color: white;
+                }
+
+                #titleBarButton {
+                    background-color: black;
+                    color: white; 
+                }
+
+            """
+
+
+    def getContentStyle(self):
+
+        return """
+                #Content {
+                    background-color: #A0A0A0;
+                    border-left: 2px solid rgb(0, 0, 255);
+                    border-right: 2px solid rgb(0, 0, 255);
                 }
 
                 #ButtonFrame, #ContentFrame{ 

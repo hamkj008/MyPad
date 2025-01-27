@@ -1,9 +1,7 @@
 import sys
 from PySide6.QtWidgets import QApplication
-from PySide6.QtGui import QIcon
 
 from View import View
-from CustomWindow import CustomWindow
 
 
 class Main:
@@ -16,7 +14,6 @@ class Main:
 
         filename = sys.argv[1] if len(sys.argv) > 1 else None
         self.view = View(self, filename)
-        # self.view = CustomWindow("MyPad", "icons/MyPadIcon.png")
         self.view.main()
 
 
