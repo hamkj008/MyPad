@@ -28,6 +28,50 @@ class QSSController():
         self.buttonColor            = None
         self.buttonTextColor        = None
         self.buttonHover            = None
+        self.borderColor            = None
+
+
+    # =============================================================================================
+
+    def setTheme(self, chosenTheme):
+
+        self.currentTheme = chosenTheme
+
+        # -----
+
+        if self.currentTheme == ColorTheme.DARK:
+
+            self.centralWidget          = None
+            self.buttonAndContentFrame  = None
+            self.textEdit               = None
+            self.buttonColor            = None
+            self.buttonTextColor        = None
+            self.buttonHover            = None
+            self.borderColor            = None
+
+        # -----
+
+        elif self.currentTheme == ColorTheme.LIGHT:
+
+            self.centralWidget          = None
+            self.buttonAndContentFrame  = None
+            self.textEdit               = None
+            self.buttonColor            = None
+            self.buttonTextColor        = None
+            self.buttonHover            = None
+            self.borderColor            = None
+
+        # -----
+
+        elif self.currentTheme == ColorTheme.ELECTRICBLUE:
+
+            self.centralWidget          = None
+            self.buttonAndContentFrame  = None
+            self.textEdit               = None
+            self.buttonColor            = None
+            self.buttonTextColor        = None
+            self.buttonHover            = None
+            self.borderColor            = None
 
 
     # =============================================================================================
@@ -38,14 +82,6 @@ class QSSController():
         return """ 
                 CustomWindow {
                     border: 2px solid rgb(0, 0, 255); 
-                }
-
-
-                /* ---- Menu bar ----  */
-                QMenuBar {
-                    border: none;  /* Remove any default borders */
-                    margin: 0px;   /* Remove any margins */
-                    padding: 0px;  /* Remove any padding */
                 }
 
                 #containerWidget {
@@ -65,8 +101,7 @@ class QSSController():
                 }
 
                 #titleBarButton {
-                    background-color: black;
-                    color: white; 
+                    background-color: blue;
                 }
 
             """

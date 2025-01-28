@@ -1,33 +1,31 @@
 from icecream import ic
 from functools import partial
-
 from PySide6.QtWidgets import QWidget, QFileDialog, QStatusBar
 from PySide6.QtCore import QFileInfo
 
-from CustomWindow import CustomWindow
 from UiViews.UiMainWindow2 import Ui_Content
-from QSSController import QSSController
-from QSSController import ColorTheme
+from QSSController import QSSController, ColorTheme
 from LineNumberTextEdit import LineNumberTextEdit
 from MyHelperLibrary.Helpers.HelperMethods import createChoiceDialog
-
+from MyHelperLibrary.Helpers.CustomWindow import CustomWindow
 
 
 
 class View(CustomWindow):
 
     def __init__(self, controller, filename):
-        super().__init__("MyPad", "icons/MyPadIcon.png")
+
+        iconPath = "E:/MyITstuff/ProgrammingIDEs/VisualStudio/Python/Projects/MyPad/MyPad/icons/MyPadIcon.png"        # have to pass an absolute path
+        super().__init__("MyPad", iconPath, True)
+        # ----------------------
+
+        self.controller = controller
         
-        self.controller     = controller
-        
-        self.appName = "MyPad"
+        self.appName    = "MyPad"
         self.setMinimumSize(700, 500)
-       
 
         # The primary widget to host the ui content 
-        self.container = QWidget()
-
+        self.container  = QWidget()
 
         # -- Style --
         self.qssController  = QSSController(ColorTheme.DARK)
@@ -54,7 +52,8 @@ class View(CustomWindow):
         self.content.horizontalSlider.setMaximum(60)     # Maximum value
         self.content.horizontalSlider.setValue(self.lineNumberTextEdit.fontSize)
         self.content.horizontalSlider.sliderMoved.connect(self.adjustFont)
-
+        
+        self.previous_text  = self.lineNumberTextEdit.toPlainText()
   
         # -- Menu bar --
         self.setupMenus()
@@ -66,7 +65,7 @@ class View(CustomWindow):
 
         # -- Signals --
         self.lineNumberTextEdit.textChanged.connect(self.onTextChanged)
-        self.content.SaveBtn.clicked.connect(self.saveAs)
+        self.content.SaveBtn.clicked.connect(self.save)
         self.content.SaveAsBtn.clicked.connect(self.saveAs)
         self.content.CutBtn.clicked.connect(self.lineNumberTextEdit.cut)
         self.content.CopyBtn.clicked.connect(self.lineNumberTextEdit.copy)
@@ -81,8 +80,6 @@ class View(CustomWindow):
 
         if filename:
             self.loadFile(filename)    
-
-        self.previous_text  = self.lineNumberTextEdit.toPlainText()
 
 
     # =============================================================================================
@@ -165,10 +162,10 @@ class View(CustomWindow):
             self.fileSaved = False
 
             if self.currentFile:
-                self.windowName = f"{self.appName} - {self.currentFile}*"
+                self.titleLabel.setText(f"{self.appName} - {self.currentFile}*")
 
             else:
-                self.windowName = f"{self.appName} - *"
+                self.titleLabel.setText(f"{self.appName} - *")
 
         # Status bar display
         self.statusBar().showMessage("Characters: " + str(len(self.lineNumberTextEdit.toPlainText())) + "    Lines: " + str(self.lineNumberTextEdit.document().blockCount()))      
@@ -186,7 +183,7 @@ class View(CustomWindow):
             else:
                 self.currentFile = None
             
-        self.windowName = self.appName
+        self.titleLabel.setText(self.appName)
         self.previous_text = ""
         self.lineNumberTextEdit.clear()
         self.lineNumberTextEdit.lineCount = 1
@@ -202,12 +199,12 @@ class View(CustomWindow):
                 with open(self.currentFilePath, "w") as file:
                     file.write(self.lineNumberTextEdit.toPlainText())
 
-                self.windowName = f"{self.appName} - {self.currentFile}"
+                self.titleLabel.setText(f"{self.appName} - {self.currentFile}")
                 self.fileSaved = True
                 ic(f"File saved: {self.currentFile}")
                 
             except IOError as e:
-                ic("Error saving file")
+                ic("Error saving file {e}")
                 
         else:
             # If no file is open yet, trigger Save As
@@ -226,12 +223,12 @@ class View(CustomWindow):
                     file.write(self.lineNumberTextEdit.toPlainText())
 
                 self.currentFile = QFileInfo(self.currentFilePath).fileName()
-                self.windowName = f"{self.appName} - {self.currentFile}"
+                self.titleLabel.setText(f"{self.appName} - {self.currentFile}")
                 self.fileSaved = True
                 ic(f"File saved as: {self.currentFilePath}")
                 
             except IOError as e:
-                ic("Error saving file")
+                ic("Error saving file {e}")
 
 
     # =============================================================================================
@@ -247,10 +244,10 @@ class View(CustomWindow):
                     self.lineNumberTextEdit.clear()
                     self.lineNumberTextEdit.setText(file.read())
                     self.currentFile = QFileInfo(self.currentFilePath).fileName()
-                    self.windowName = f"{self.appName} - {self.currentFile}" 
+                    self.titleLabel.setText(f"{self.appName} - {self.currentFile}")
 
             except IOError as e:
-                ic("Error opening file")
+                ic("Error opening file {e}")
                 
     # =============================================================================================
 
@@ -263,10 +260,10 @@ class View(CustomWindow):
             with open(filename, "r") as file:
                 self.lineNumberTextEdit.setText(file.read())
                 self.currentFile = QFileInfo(self.currentFilePath).fileName()
-                self.windowName = f"{self.appName} - {self.currentFile}" 
+                self.titleLabel.setText(f"{self.appName} - {self.currentFile}")
            
         except IOError as e:
-                ic("Error loading file")
+                ic("Error loading file {e}")
 
 
     # =============================================================================================
