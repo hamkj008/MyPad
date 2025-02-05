@@ -3,12 +3,12 @@ from functools import partial
 from PySide6.QtWidgets import QWidget, QFileDialog, QStatusBar
 from PySide6.QtCore import QFileInfo
 
-from UiViews.UiMainWindow2 import Ui_Content
+from UiViews.UiMainWindow2 import Ui_MainWidget
 from QSSController import QSSController, ColorTheme
 from LineNumberTextEdit import LineNumberTextEdit
-from MyHelperLibrary.Helpers.HelperMethods import createChoiceDialog
+from MyHelperLibrary.Helpers.HelperMethods import createChoiceDialog, createActionDictionary, createMenu
 from MyHelperLibrary.Helpers.CustomWindow import CustomWindow
-
+from PreferencesView import PreferencesView
 
 
 class View(CustomWindow):
@@ -29,13 +29,10 @@ class View(CustomWindow):
 
         # -- Style --
         self.qssController  = QSSController(ColorTheme.DARK)
-        self.setStyleSheet(self.qssController.getWindowStyle())
-        self.container.setStyleSheet(self.qssController.getContentStyle())
-
+        self.setStyle()
         # ------------
 
-
-        self.content = Ui_Content()
+        self.content = Ui_MainWidget()
         self.content.setupUi(self.container)
 
         self.setCentralWidget(self.container)
@@ -92,6 +89,16 @@ class View(CustomWindow):
     # =============================================================================================
 
 
+    def setStyle(self):
+
+        stylesheet = self.qssController.getWindowStyle()
+        stylesheet += self.qssController.getContentStyle()
+        self.setStyleSheet(stylesheet)
+
+
+    # =============================================================================================
+
+
     def quitApp(self):
 
         if not self.fileSaved:
@@ -110,44 +117,35 @@ class View(CustomWindow):
 
     def setupMenus(self):
 
+        self.menuList = {}
         # ----- File Menu -----
-        fileMenu    = self.menubar.addMenu("&File")
+        newAction           = createActionDictionary("New", trigger=self.newFile)
+        newWindowAction     = createActionDictionary("New Window", trigger=self.newFileWindow)
+        openAction          = createActionDictionary("Open", trigger=self.openFile)
+        saveAction          = createActionDictionary("Save", trigger=self.save)         
+        saveAsAction        = createActionDictionary("Save As", trigger=self.saveAs)
+        quitAction          = createActionDictionary("Exit", trigger=self.quitApp)
 
-        # -- Actions --
-        newAction           = fileMenu.addAction("New")
-        newWindowAction     = fileMenu.addAction("New Window")
-        fileMenu.addSeparator()
-        openAction          = fileMenu.addAction("Open")
-        fileMenu.addSeparator()
-        saveAction          = fileMenu.addAction("Save")         
-        saveAsAction        = fileMenu.addAction("Save As")
-        fileMenu.addSeparator()
-        quitAction          = fileMenu.addAction("Exit")
+        fileActionList = [newAction, newWindowAction, "separator", openAction, "separator", saveAction, saveAsAction, quitAction]
+        self.menuList["fileMenu"] = createMenu(self.menubar, "File", fileActionList)
         
-        newAction.triggered.connect(self.newFile)
-        newWindowAction.triggered.connect(self.newFileWindow)
-        openAction.triggered.connect(self.openFile)
-        saveAction.triggered.connect(self.save)
-        saveAsAction.triggered.connect(self.saveAs)
-        quitAction.triggered.connect(self.quitApp)
+
+        # ----- Edit Menu -----
+        undoAction  = createActionDictionary("Undo", trigger=self.lineNumberTextEdit.undo)
+        redoAction  = createActionDictionary("Redo", trigger=self.lineNumberTextEdit.redo)
+        cutAction   = createActionDictionary("Cut", trigger=self.lineNumberTextEdit.cut)
+        copyAction  = createActionDictionary("Copy", trigger=self.lineNumberTextEdit.copy)
+        pasteAction = createActionDictionary("Paste", trigger=self.lineNumberTextEdit.paste)
+
+        editActionList = [undoAction, redoAction, "separator", cutAction, copyAction, pasteAction]
+        self.menuList["editMenu"]    = createMenu(self.menubar, "Edit", editActionList)
 
 
-        # ----- Edit menu ------
-        editMenu    = self.menubar.addMenu("&Edit")
-
-        # -- Actions --
-        undoAction  = editMenu.addAction("Undo")
-        redoAction  = editMenu.addAction("Redo")
-        editMenu.addSeparator()
-        cutAction   = editMenu.addAction("Cut")
-        copyAction  = editMenu.addAction("Copy")
-        pasteAction = editMenu.addAction("Paste")
+        # ----- Settings menu ------
+        openPreferencesAction   =   createActionDictionary("Preferences", shortcut="Ctrl+P", trigger=self.displayPreferencesView)
+        actionList              =   [openPreferencesAction]
         
-        undoAction.triggered.connect(self.lineNumberTextEdit.undo)
-        redoAction.triggered.connect(self.lineNumberTextEdit.redo)
-        cutAction.triggered.connect(self.lineNumberTextEdit.cut)
-        copyAction.triggered.connect(self.lineNumberTextEdit.copy)
-        pasteAction.triggered.connect(self.lineNumberTextEdit.paste)
+        self.menuList["settingsMenu"] = createMenu(self.menubar, "Settings", actionList)
 
 
     # =============================================================================================
@@ -308,3 +306,19 @@ class View(CustomWindow):
 
     # =============================================================================================
     
+
+    # =================================   VIEWS    ===========================================
+
+
+    def displayPreferencesView(self):
+        ic("displayPreferencesView")
+        
+        self.preferencesView = PreferencesView(self, self.qssController)
+        self.preferencesView.main()
+    
+
+    def closePreferencesView(self):
+        self.preferencesView.close()
+        
+
+    # ========================================================================================

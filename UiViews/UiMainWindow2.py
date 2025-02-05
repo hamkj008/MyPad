@@ -20,15 +20,15 @@ from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QPushButton,
     QWidget)
 import resource_rc
 
-class Ui_Content(object):
-    def setupUi(self, Content):
-        if not Content.objectName():
-            Content.setObjectName(u"Content")
-        Content.resize(913, 783)
-        self.horizontalLayout_4 = QHBoxLayout(Content)
+class Ui_MainWidget(object):
+    def setupUi(self, MainWidget):
+        if not MainWidget.objectName():
+            MainWidget.setObjectName(u"MainWidget")
+        MainWidget.resize(913, 783)
+        self.horizontalLayout_4 = QHBoxLayout(MainWidget)
         self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
         self.horizontalLayout_4.setContentsMargins(5, 0, 5, 0)
-        self.MainFrame = QFrame(Content)
+        self.MainFrame = QFrame(MainWidget)
         self.MainFrame.setObjectName(u"MainFrame")
         self.MainFrame.setFrameShape(QFrame.StyledPanel)
         self.MainFrame.setFrameShadow(QFrame.Raised)
@@ -199,19 +199,19 @@ class Ui_Content(object):
         self.horizontalLayout_4.addWidget(self.MainFrame)
 
 
-        self.retranslateUi(Content)
+        self.retranslateUi(MainWidget)
 
-        QMetaObject.connectSlotsByName(Content)
+        QMetaObject.connectSlotsByName(MainWidget)
     # setupUi
 
-    def retranslateUi(self, Content):
-        Content.setWindowTitle(QCoreApplication.translate("Content", u"Form", None))
-        self.SaveBtn.setText(QCoreApplication.translate("Content", u"  Save", None))
-        self.SaveAsBtn.setText(QCoreApplication.translate("Content", u"  Save As", None))
+    def retranslateUi(self, MainWidget):
+        MainWidget.setWindowTitle(QCoreApplication.translate("MainWidget", u"Form", None))
+        self.SaveBtn.setText(QCoreApplication.translate("MainWidget", u"  Save", None))
+        self.SaveAsBtn.setText(QCoreApplication.translate("MainWidget", u"  Save As", None))
         self.CutBtn.setText("")
         self.CopyBtn.setText("")
         self.PasteBtn.setText("")
-        self.ClearBtn.setText(QCoreApplication.translate("Content", u"  Clear", None))
+        self.ClearBtn.setText(QCoreApplication.translate("MainWidget", u"  Clear", None))
         self.leftBtn.setText("")
         self.rightBtn.setText("")
     # retranslateUi
