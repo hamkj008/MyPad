@@ -1,11 +1,10 @@
 from icecream import ic
 
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel
-from PySide6.QtGui import QIcon
-from PySide6.QtCore import QPoint
+from PySide6.QtWidgets import QWidget
 from UiViews.UiPreferencesView import Ui_MainWidget
 from MyHelperLibrary.Helpers.CustomWindow import CustomWindow
-from QSSController import QSSController, ColorTheme
+from QSSController import ColorTheme
+
 
 
 class PreferencesView(CustomWindow):
@@ -17,8 +16,6 @@ class PreferencesView(CustomWindow):
         self.qssController = qssController
 
         self.setWindowTitle("Preferences")
-        self.setWindowIcon(QIcon())
-        self.setButtonIconSize(QPoint(15, 15))
         
         # The primary widget to host the ui content 
         self.container  = QWidget()

@@ -1,13 +1,17 @@
 import sys
 from PySide6.QtWidgets import QApplication
+from PySide6.QtGui import QIcon
 
 from View import View
+
 
 
 class Main:
     
     def __init__(self):
         self.app = QApplication([])
+        self.app.setWindowIcon(QIcon("icons/MyPadIcon.png"))
+
 
 
     def main(self):     
@@ -19,7 +23,6 @@ class Main:
 
     def quitApp(self):
         self.app.quit()
-
 
 
 

@@ -11,6 +11,7 @@ from MyHelperLibrary.Helpers.CustomWindow import CustomWindow
 from PreferencesView import PreferencesView
 
 
+
 class View(CustomWindow):
 
     def __init__(self, controller, filename):
@@ -24,20 +25,20 @@ class View(CustomWindow):
         self.appName    = "MyPad"
         self.setMinimumSize(700, 500)
 
-        # The primary widget to host the ui content 
+        # ----- Setup UI ----------------
+
         self.container  = QWidget()
+        self.content    = Ui_MainWidget()
+        self.content.setupUi(self.container)
+
+        self.setCentralWidget(self.container)
 
         # -- Style --
         self.qssController  = QSSController(ColorTheme.DARK)
         self.setStyle()
-        # ------------
+        # -------------------------------
 
-        self.content = Ui_MainWidget()
-        self.content.setupUi(self.container)
-
-        self.setCentralWidget(self.container)
-        
-
+              
         # -- Custom Text Edit -- 
         self.lineNumberTextEdit = LineNumberTextEdit()
         self.lineNumberTextEdit.setObjectName("textEdit")
@@ -156,8 +157,8 @@ class View(CustomWindow):
         # Prevent painting from triggering on text change every frame
         current_text = self.lineNumberTextEdit.toPlainText()
         if current_text != self.previous_text:
-            self.previous_text = current_text
-            self.fileSaved = False
+            self.previous_text  = current_text
+            self.fileSaved      = False
 
             if self.currentFile:
                 self.titleLabel.setText(f"{self.appName} - {self.currentFile}*")

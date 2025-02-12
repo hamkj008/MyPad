@@ -10,7 +10,6 @@ class LineNumberTextEdit(QTextEdit):
     def __init__(self):
         super().__init__()
 
-        # self.setViewportMargins(40, 0, 0, 0)  # 40px space for line numbers
         self.setLineWrapMode(QTextEdit.NoWrap)
 
         self.fontSize = 15
