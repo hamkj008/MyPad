@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'PreferencesView.ui'
+## Form generated from reading UI file 'PreferencesWidget.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.6.2
 ##
@@ -18,31 +18,31 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QApplication, QComboBox, QFrame, QLabel,
     QSizePolicy, QSpacerItem, QVBoxLayout, QWidget)
 
-class Ui_MainWidget(object):
-    def setupUi(self, MainWidget):
-        if not MainWidget.objectName():
-            MainWidget.setObjectName(u"MainWidget")
-        MainWidget.resize(534, 392)
-        self.verticalLayout = QVBoxLayout(MainWidget)
+class Ui_PreferencesWidget(object):
+    def setupUi(self, PreferencesWidget):
+        if not PreferencesWidget.objectName():
+            PreferencesWidget.setObjectName(u"PreferencesWidget")
+        PreferencesWidget.resize(534, 392)
+        self.verticalLayout = QVBoxLayout(PreferencesWidget)
         self.verticalLayout.setObjectName(u"verticalLayout")
-        self.VerticalFrame = QFrame(MainWidget)
-        self.VerticalFrame.setObjectName(u"VerticalFrame")
-        self.VerticalFrame.setFrameShape(QFrame.StyledPanel)
-        self.VerticalFrame.setFrameShadow(QFrame.Raised)
-        self.verticalLayout_2 = QVBoxLayout(self.VerticalFrame)
+        self.PreferencesFrame = QFrame(PreferencesWidget)
+        self.PreferencesFrame.setObjectName(u"PreferencesFrame")
+        self.PreferencesFrame.setFrameShape(QFrame.StyledPanel)
+        self.PreferencesFrame.setFrameShadow(QFrame.Raised)
+        self.verticalLayout_2 = QVBoxLayout(self.PreferencesFrame)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.verticalLayout_2.setContentsMargins(-1, 9, -1, -1)
         self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_2.addItem(self.verticalSpacer_2)
 
-        self.themeOptionsLabel = QLabel(self.VerticalFrame)
+        self.themeOptionsLabel = QLabel(self.PreferencesFrame)
         self.themeOptionsLabel.setObjectName(u"themeOptionsLabel")
         self.themeOptionsLabel.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
 
         self.verticalLayout_2.addWidget(self.themeOptionsLabel)
 
-        self.themeOptionsComboBox = QComboBox(self.VerticalFrame)
+        self.themeOptionsComboBox = QComboBox(self.PreferencesFrame)
         self.themeOptionsComboBox.setObjectName(u"themeOptionsComboBox")
 
         self.verticalLayout_2.addWidget(self.themeOptionsComboBox)
@@ -52,16 +52,16 @@ class Ui_MainWidget(object):
         self.verticalLayout_2.addItem(self.verticalSpacer)
 
 
-        self.verticalLayout.addWidget(self.VerticalFrame)
+        self.verticalLayout.addWidget(self.PreferencesFrame)
 
 
-        self.retranslateUi(MainWidget)
+        self.retranslateUi(PreferencesWidget)
 
-        QMetaObject.connectSlotsByName(MainWidget)
+        QMetaObject.connectSlotsByName(PreferencesWidget)
     # setupUi
 
-    def retranslateUi(self, MainWidget):
-        MainWidget.setWindowTitle(QCoreApplication.translate("MainWidget", u"Form", None))
-        self.themeOptionsLabel.setText(QCoreApplication.translate("MainWidget", u"Theme:", None))
+    def retranslateUi(self, PreferencesWidget):
+        PreferencesWidget.setWindowTitle(QCoreApplication.translate("PreferencesWidget", u"Form", None))
+        self.themeOptionsLabel.setText(QCoreApplication.translate("PreferencesWidget", u"Theme:", None))
     # retranslateUi
 

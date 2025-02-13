@@ -1,10 +1,11 @@
 from icecream import ic
 from functools import partial
+
 from PySide6.QtWidgets import QWidget, QFileDialog, QStatusBar
 from PySide6.QtCore import QFileInfo
 
-from UiViews.UiMainWindow2 import Ui_MainWidget
-from QSSController import QSSController, ColorTheme
+from UiViews.UiMainWidget import Ui_MainWidget
+from QSSController import QSSController
 from LineNumberTextEdit import LineNumberTextEdit
 from MyHelperLibrary.Helpers.HelperMethods import createChoiceDialog, createActionDictionary, createMenu
 from MyHelperLibrary.Helpers.CustomWindow import CustomWindow
@@ -23,7 +24,7 @@ class View(CustomWindow):
         self.controller = controller
         
         self.appName    = "MyPad"
-        self.setMinimumSize(700, 500)
+        self.setMinimumSize(300, 200)
 
         # ----- Setup UI ----------------
 
@@ -34,7 +35,7 @@ class View(CustomWindow):
         self.setCentralWidget(self.container)
 
         # -- Style --
-        self.qssController  = QSSController(ColorTheme.DARK)
+        self.qssController  = QSSController()
         self.setStyle()
         # -------------------------------
 
