@@ -108,7 +108,6 @@ class LineNumberTextEdit(QTextEdit):
     # =============================================================================================
 
 
-
     def keyPressEvent(self, event):
 
         # If Enter key is pressed, add additional lines
